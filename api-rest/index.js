@@ -2,13 +2,15 @@ const express = require('express');
 const server = express();
 server.use(express.json());
 
-const usuarios = [];
+let usuarios = [];
+
+
 
 server.post('/usuarios', (req, res) => {
-  const nome = req.body.nome;
-  const idade = req.body.idade;
-  const id = usuarios.length + 1;
-  const cursos = [];
+  let nome = req.body.nome;
+  let idade = req.body.idade;
+  let id = usuarios.length + 1;
+  let cursos = req.body.cursos;
 
   usuarios.push({
     id,
@@ -34,7 +36,7 @@ server.put('/usuarios/:id', (req, res) => {
 });
 
 server.delete('/usuarios/:id', (req, res) => {
-  const id = req.params.id;
+  let id = req.params.id;
 
   let indice = -1;
 
@@ -58,31 +60,114 @@ server.delete('/usuarios/:id', (req, res) => {
     Listar os cursos 
 */
 server.get('/usuarios/:id/cursos', (req, res) => {
-  return res.status(200).json(cursos);
+  const idFiltrado = usuarios.filter((usuario)=> {
+    return usuario.id == req.params.id;
+  })
+  const cursosDoUsuario = idFiltrado.map((usuario)=>{
+    return usuario.cursos;
+  });
+  
+  return res.status(200).json(cursosDoUsuario);
   // TODO implementar
 });
 
 /*
     Incluir um curso 
 */
-server.post('/usuarios/:id', (req, res) => {
-  // TODO implementar
+server.post('/usuarios/:id/cursos', (req, res) => {
+  const idFiltrado = usuarios.filter((usuario)=> {
+    return usuario.id == req.params.id;
+  })
+
+  let usuarioFiltrado;
+  idFiltrado[0] ? usuarioFiltrado = idFiltrado[0] : usuarioFiltrado = null; //Ternario
+
+  if(usuarioFiltrado === null){
+    return res.status(404).json({
+      status: 404,
+      msg : "Usuario não encontrado"
+    });
+  }
+  const cursos = req.body.cursos;
+  usuarioFiltrado.cursos.push(cursos);
+  return res.status(201).json(usuarioFiltrado);
 });
 
 /*
     Alterar um curso 
 */
-server.put('/usuarios/:id', (req, res) => {
-  // TODO implementar
+server.put('/usuarios/:id/cursos/:idCurso', (req, res) => {
+  const idFiltrado = usuarios.filter((usuario)=> {
+    return usuario.id == req.params.id;
+  })
+
+  let usuarioFiltrado;
+  idFiltrado[0] ? usuarioFiltrado = idFiltrado[0] : usuarioFiltrado = null; //Ternario
+
+  if(usuarioFiltrado === null){
+    return res.status(404).json({
+      status: 404,
+      msg : "Usuario não encontrado"
+    });
+  }
+
+  const cursoFiltrado = idFiltrado.filter((usuario)=> {
+    return usuario.cursos.id == req.params.idCurso;
+  })
+  console.log(cursoFiltrado);
+  //console.log(idFiltrado);
 });
 
 /*
     Deletar um curso 
 */
-server.delete('/usuarios/:id', (req, res) => {
-  // TODO implementar
+server.delete('/usuarios/:id/curso/:id', (req, res) => {
+  const idFiltrado = usuarios.filter((usuario)=> {
+    return usuario.id == req.params.id;
+  })
+
+  let usuarioFiltrado;
+  idFiltrado[0] ? usuarioFiltrado = idFiltrado[0] : usuarioFiltrado = null; //Ternario
+
+  if(usuarioFiltrado === null){
+    return res.status(404).json({
+      status: 404,
+      msg : "Usuario não encontrado"
+    });
+  }
+  
 });
 
 server.listen(3000, () => {
   console.log('Servidor rodando em http://localhost:3000/ ');
 });
+
+/**
+ * server.delete('/usuarios/:id/cursos/:id', (req, res) => {
+  const idFiltrado = usuarios.filter((usuario)=> {
+    return usuario.id == req.params.id;
+  })
+
+  let usuarioFiltrado;
+  idFiltrado[0] ? usuarioFiltrado = idFiltrado[0] : usuarioFiltrado = null; //Ternario
+
+  if(usuarioFiltrado === null){
+    return res.status(404).json({
+      status: 404,
+      msg : "Usuario não encontrado"
+    });
+  }
+
+  let indice = -1;
+
+  usuarioFiltrado.map((usuario, index) => {
+    if (usuarioFiltrado.id === Number(id)) {
+      indice = index;
+      usuarioFiltrado.curso = ""
+    }
+    return usuarioFiltrado.cursos;
+  });
+  console.log(usuarios.splice(indice, 1));
+  console.log(cursos.splice(indice, 1));
+});
+ */
